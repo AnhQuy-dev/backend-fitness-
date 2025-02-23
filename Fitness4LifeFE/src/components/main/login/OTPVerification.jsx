@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { verifyOTP, loginUser } from '../../../services/authService';
-import { getUserByEmail } from '../../../serviceToken/authService';
-import { jwtDecode } from "jwt-decode";
-import authObserver from '../../../config/authObserver';
+import { verifyOTP } from '../../../serviceToken/authService';
 
 const OTPVerification = () => {
   const { email } = useParams();
@@ -13,71 +10,7 @@ const OTPVerification = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Check if we have registration data
-    const registrationData = sessionStorage.getItem('registrationData');
-    if (!registrationData) {
-      toast.error('Registration information not found');
-      navigate('/login');
-    }
-  }, [navigate]);
 
-  const handleAutoLogin = async (email, password) => {
-    try {
-      const response = await loginUser(email, password);
-      const { access_token, refresh_token, expires_in } = response;
-      
-      if (!access_token) {
-        throw new Error('Login failed: Invalid credentials');
-      }
-      
-      const decodedToken = jwtDecode(access_token);
-      const userEmail = decodedToken?.sub;
-
-      if (!userEmail) {
-        throw new Error('Invalid token: User information missing');
-      }
-
-      const userDetails = await getUserByEmail(userEmail, access_token);
-
-      if (!userDetails) {
-        throw new Error('Failed to retrieve user details');
-      }
-
-      if (!userDetails.active) {
-        throw new Error('Account is not active');
-      }
-
-      const tokenInfo = {
-        access_token,
-        refresh_token,
-        expires_in,
-        user: userDetails,
-        timestamp: Date.now()
-      };
-
-      // Save token data and notify observers
-      localStorage.setItem("tokenData", JSON.stringify(tokenInfo));
-      authObserver.notifyLogin(tokenInfo);
-
-      // Clean up registration data
-      sessionStorage.removeItem('registrationData');
-
-      // Redirect based on role
-      switch (decodedToken.role) {
-        case 'ADMIN':
-          navigate('/admin/profile');
-          break;
-        case 'USER':
-          navigate('/user/profile');
-          break;
-        default:
-          throw new Error('Invalid user role');
-      }
-    } catch (error) {
-      throw new Error(error.message || 'Auto-login failed');
-    }
-  };
 
   const handleVerifyOTP = async () => {
     const otpCode = otp.join('');
@@ -89,34 +22,25 @@ const OTPVerification = () => {
     try {
       setLoading(true);
 
-      // Get registration data from sessionStorage
-      const registrationData = JSON.parse(sessionStorage.getItem('registrationData'));
-      if (!registrationData) {
-        throw new Error('Registration data not found');
-      }
-
       // Verify OTP
       const response = await verifyOTP(otpCode, email);
 
       if (response.status === 200) {
-        toast.success("OTP Verified Successfully!");
-        
-        // Perform auto login
-        await handleAutoLogin(registrationData.email, registrationData.password);
-        
-        toast.success('Login successful! Redirecting to profile...');
+        toast.success("Account verified successfully!");
+        // Redirect to login page after successful verification
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         toast.error(response.message || "Invalid OTP!");
       }
     } catch (error) {
       toast.error(error.message || "Verification failed!");
-      navigate('/login');
     } finally {
       setLoading(false);
     }
   };
 
-  // Rest of the component remains the same
   const handleChange = (e, index) => {
     const value = e.target.value;
     if (!isNaN(value) && value.length <= 1) {
@@ -134,7 +58,7 @@ const OTPVerification = () => {
     if (e.key === 'Backspace') {
       e.preventDefault();
       let newOtp = [...otp];
-      
+
       if (otp[index] === '' && index > 0) {
         newOtp[index - 1] = '';
         setOtp(newOtp);
@@ -177,9 +101,9 @@ const OTPVerification = () => {
         ))}
       </div>
 
-      <button 
-        className="btn-verify" 
-        onClick={handleVerifyOTP} 
+      <button
+        className="btn-verify"
+        onClick={handleVerifyOTP}
         disabled={loading}
       >
         {loading ? (

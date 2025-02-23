@@ -49,6 +49,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PromotionPage from './components/admin/Promotion/PromotionPage';
 import YourPromotionPage from './components/main/promotion/YourPromotionPage';
+import Register from './components/main/login/Registration';
 
 const App = () => {
   return (
@@ -61,6 +62,7 @@ const App = () => {
         <Route element={<><MainHeader /><Outlet /><Footer /></>}>
           {/* Public routes */}
           <Route path='/login' element={<LoginToken />} />
+          <Route path='/Register' element={<Register />} />
           <Route path='/blog' element={<Blog />} />
           <Route path="/blog/:id" element={<BlogDetail />} />
           <Route path="/contact-us/" element={<ContactForm />} />
@@ -68,6 +70,7 @@ const App = () => {
           <Route path="/clubs/" element={<ClubHome />} />
           <Route path="/clubs/:id" element={<ClubDetails />} />
           <Route path="/packageMain/" element={<PackageMain />} />
+
           <Route path="/forums" element={<ForumLayout />}>
             <Route index element={<CategoryPage />} />
             <Route path="forum" element={<ForumPage />} />

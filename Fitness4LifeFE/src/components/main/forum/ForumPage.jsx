@@ -2,8 +2,9 @@ import "../../../assets/css/ForumPage.css"; // Custom CSS nếu cần
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Spin, Typography, message } from "antd";
-import { GetAllQuestion } from "../../../services/forumService";
 import moment from "moment";
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -22,7 +23,8 @@ const ForumPage = () => {
     const fetchQuestions = async () => {
         try {
             setLoading(true);
-            const response = await GetAllQuestion();
+            const tokenData = getTokenData();
+            const response = await GetAllQuestion(tokenData.access_token);
             // console.log("API Response Data:", response);
 
             if (response.status === 200) {

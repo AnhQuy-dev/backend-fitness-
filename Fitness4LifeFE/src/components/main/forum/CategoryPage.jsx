@@ -1,9 +1,6 @@
-// CategoryPage.jsx
-import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Typography } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
-import { DataContext } from '../../helpers/DataContext';
 import "../../../assets/css/CategoryPage.css";
 
 const { Title, Text } = Typography;
@@ -20,8 +17,6 @@ const categories = [
 
 const CategoryPage = () => {
     const navigate = useNavigate();
-    const { isLoggedIn } = useContext(DataContext); // check trạng thái login từ dataContext
-
     const handleCategoryClick = (subcategoryName) => {
         navigate(`/forums/forum?category=${encodeURIComponent(subcategoryName)}`);
     };
@@ -29,18 +24,6 @@ const CategoryPage = () => {
     return (
         <section id="services">
             <div className="category-container">
-                <div className="category-header">
-                    <Title level={2}>Chào Mừng Bạn Đến Với Diễn Đàn Thể Hình Việt Nam</Title>
-                    {!isLoggedIn && (
-                        <>
-                            <Text>Hỏi đáp trực tuyến, lắng nghe các chuyên gia phân tích. Đăng ký tài khoản trải nghiệm ngay.</Text>
-                            <Link to="/registration">
-                                <button className="register-button">ĐĂNG KÝ</button>
-                            </Link>
-                        </>
-                    )}
-                </div>
-
                 <div className="category-list">
                     {categories.map((category, index) => (
                         <div key={index} className="category-group">

@@ -4,18 +4,50 @@ import { userAPI } from "../components/helpers/constants";
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await axios.post(`${userAPI}/users/login`, { email, password });
-    return response.data; // Trả về dữ liệu từ API
+    const response = await fetch(`${userAPI}/users/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, password })  // Sửa lỗi JSON.stringify
+    });
+
+    if (!response.ok) {
+      throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
+    }
+
+    const result = await response.json(); // Sửa lỗi response.data.json()
+    return result;
+
   } catch (error) {
     if (error.response) {
-      // Trường hợp API trả về lỗi (4xx, 5xx)
       throw new Error(error.response.data.message || 'An error occurred while logging in.');
     } else if (error.request) {
-      // Không nhận được phản hồi từ API
       throw new Error('No response from server. Please try again later.');
     } else {
-      // Lỗi không xác định
       throw new Error('An unexpected error occurred.');
+    }
+  }
+};
+
+export const registerUser = async (newData) => {
+  try {
+    const response = await fetch(`${userAPI}/users/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: "include",
+      body: JSON.stringify(newData)
+    });
+
+    return response;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data || 'An error occurred'
+    } else {
+      return error.message || 'An unexpected error occurred'
     }
   }
 };
@@ -52,4 +84,24 @@ export const changePassword = async (data, token) => {
   }
 
   return response.json();
+};
+
+
+export const verifyOTP = async (otp) => {
+  try {
+    const response = await fetch(`${userAPI}/users/verify-account/${otp}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: "include"
+    });
+    return response;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data || 'An error occurred'
+    } else {
+      return error.message || 'An unexpected error occurred'
+    }
+  }
 };

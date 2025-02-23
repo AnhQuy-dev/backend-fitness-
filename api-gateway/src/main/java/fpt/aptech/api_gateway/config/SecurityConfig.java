@@ -37,6 +37,7 @@ public class SecurityConfig {
                         exchange  -> exchange
                                 //thêm mới - dùng để cho phép Options
                                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                                 .pathMatchers(
                                         "/api/users/login",
                                         "/api/users/register",

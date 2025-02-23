@@ -29,18 +29,6 @@ export const UsedPromotionCode = async (code, userId) => {
 };
 
 
-export const usedPointChangCode = async (userId, point, promotionId) => {
-    try {
-        const response = await axios.post(`${smartAPI}/promotionOfUser/usedPointChangCode/${userId}?point=${point}&promotionId=${promotionId}`);
-        return response.data;
-    } catch (error) {
-        if (error.response) {
-            return error.response.data || 'An error occurred';
-        } else {
-            return error.message || 'An unexpected error occurred';
-        }
-    }
-};
 
 
 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Card, Tag, Spin, Alert, Button, Col, Row, Typography, Tabs, notification } from "antd";
 import PromotionDetailsModal from "../../admin/Promotion/PromotionDetailsModal";
-import { getAllPromotionsInJson, getPromotionUser } from "../../../serviceToken/PromotionService";
+import { getAllPromotionsInJson, getPromotionUser, usedPointChangCode } from "../../../serviceToken/PromotionService";
 import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
 import { getUserPoint } from "../../../serviceToken/FitnessgoalService";
 
@@ -80,49 +80,48 @@ const YourPromotionPage = () => {
         setIsModalVisible(true);
     };
 
-    // const handleExchangeVoucher = async (promotion) => {
-    //     if (!user || !user.id) {
-    //         notification.error({
-    //             message: "Error",
-    //             description: "User information is missing.",
-    //         });
-    //         return;
-    //     }
+    const handleExchangeVoucher = async (promotion) => {
+        if (!decotoken || !decotoken.id) {
+            notification.error({
+                message: "Error",
+                description: "User information is missing.",
+            });
+            return;
+        }
 
-    //     if (userPoints?.totalPoints < promotion.points) {
-    //         notification.error({
-    //             message: "Insufficient Points",
-    //             description: "You do not have enough points to exchange for this voucher.",
-    //         });
-    //         return;
-    //     }
-    //     try {
-    //         const response = await usedPointChangCode(user.id, promotion.points, promotion.id);
+        if (userPoints?.totalPoints < promotion.points) {
+            notification.error({
+                message: "Insufficient Points",
+                description: "You do not have enough points to exchange for this voucher.",
+            });
+            return;
+        }
+        try {
+            const response = await usedPointChangCode(decotoken.id, promotion.points, promotion.id, tokenData.access_token);
 
-    //         if (response.status === 200) {
-    //             notification.success({
-    //                 message: "Success",
-    //                 description: `Voucher "${promotion.title}" has been successfully exchanged.`,
-    //             });
+            if (response.status === 200) {
+                notification.success({
+                    message: "Success",
+                    description: `Voucher "${promotion.title}" has been successfully exchanged.`,
+                });
 
-    //             // Cập nhật lại điểm và danh sách khuyến mãi
-    //             fetchPromotions(user.id);
-    //             fetchUserPoints(user.id);
-    //         } else {
-    //             notification.error({
-    //                 message: "Error",
-    //                 description: response.message || "Failed to exchange voucher. Please try again.",
-    //             });
-    //         }
-    //     } catch (error) {
-    //         notification.error({
-    //             message: "Error",
-    //             description: error.message || "An unexpected error occurred while exchanging the voucher.",
-    //         });
-    //     }
-    // };
+                // Cập nhật lại điểm và danh sách khuyến mãi
+                fetchPromotions();
+                fetchUserPoints();
+            } else {
+                notification.error({
+                    message: "Error",
+                    description: response.message || "Failed to exchange voucher. Please try again.",
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: "Error",
+                description: error.message || "An unexpected error occurred while exchanging the voucher.",
+            });
+        }
+    };
     useEffect(() => {
-        console.log("User Points State Updated:", userPoints);
     }, [userPoints]);
 
 
@@ -246,7 +245,7 @@ const YourPromotionPage = () => {
                                                 <Button
                                                     key="exchangeVoucher"
                                                     type="primary"
-                                                // onClick={() => handleExchangeVoucher(promotion)}
+                                                    onClick={() => handleExchangeVoucher(promotion)}
                                                 >
                                                     Đổi Voucher
                                                 </Button>,

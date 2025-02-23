@@ -16,6 +16,7 @@ public class Profile {
     @GeneratedValue
     private long id;
     private String hobbies;
+
     private String address;
     private int age;
     private int heightValue;   //Giá trị chiều cao
