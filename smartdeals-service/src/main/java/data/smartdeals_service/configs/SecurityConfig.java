@@ -18,9 +18,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configure(http)) // Bật CORS // thêm mới
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/uploads/BlogImage/**", "/uploads/QuestionsImage/**")
+                        .requestMatchers("/uploads/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
@@ -29,4 +28,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
