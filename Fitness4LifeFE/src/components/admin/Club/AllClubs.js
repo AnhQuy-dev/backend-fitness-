@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DeleteOutlined, EditOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Input, Menu, notification, Popconfirm, Table } from 'antd';
+import { Dropdown, Input, Menu, notification, Popconfirm, Table } from 'antd';
 import UpdateClub from './UpdateClub';
 import ViewClubDetail from './DetailClub';
 import { deleteClubApi } from '../../../services/ClubService';
@@ -29,25 +29,30 @@ function AllClubs(props) {
         setAddressFilters(filters);
     }, [dataClubs]);
 
+    const renderClickableCell = (key) => function ClickableCell(_, record) {
+        return (
+            <span
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                    setDataDetail(record);
+                    setIsDataDetailOpen(true);
+                }}
+            >
+                {record[key]}
+            </span>
+        );
+    };
+
     const columns = [
         {
             title: 'Id',
             dataIndex: 'id',
-            render: (_, record) => (
-                <a
-                    href="#"
-                    onClick={() => {
-                        setDataDetail(record);
-                        setIsDataDetailOpen(true);
-                    }}
-                >
-                    {record.id}
-                </a>
-            ),
+            render: renderClickableCell("id"),
         },
         {
             title: 'Name',
             dataIndex: 'name',
+            render: renderClickableCell("name"),
         },
         {
             title: 'Address',
@@ -56,10 +61,12 @@ function AllClubs(props) {
             onFilter: (value, record) => record.address.startsWith(value),
             filterSearch: true,
             width: '40%',
+            render: renderClickableCell("address"),
         },
         {
             title: 'Contact Phone',
             dataIndex: 'contactPhone',
+            render: renderClickableCell("contactPhone"),
         },
         {
             title: 'Close Hour',
@@ -190,7 +197,6 @@ function AllClubs(props) {
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
                 loadClubs={loadClubs}
-                token={token}
             />
 
             <ViewClubDetail
@@ -198,7 +204,6 @@ function AllClubs(props) {
                 setDataDetail={setDataDetail}
                 isDataDetailOpen={isDataDetailOpen}
                 setIsDataDetailOpen={setIsDataDetailOpen}
-                token={token}
             />
         </>
     );

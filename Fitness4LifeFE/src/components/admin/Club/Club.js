@@ -17,7 +17,6 @@ function Club() {
             if (data && Array.isArray(data.data)) {
                 setDataClubs(data.data);
                 setFilteredData(data.data);
-                console.log("Clubs loaded successfully:", data.data);
             } else {
                 console.error("Invalid data format received:", data);
                 setDataClubs([]);

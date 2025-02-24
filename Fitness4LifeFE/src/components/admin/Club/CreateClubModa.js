@@ -1,50 +1,25 @@
-import { useState } from "react";
-import { Form, Input, Button, notification, Modal, TimePicker, Upload } from "antd";
-import moment from "moment";
-import { AddMoreImageClub, CreateClub } from "../../../serviceToken/ClubService";
+import { Form, Input, notification, Modal, TimePicker, Upload } from "antd";
+import dayjs from "dayjs";
+import { CreateClub } from "../../../serviceToken/ClubService";
 import { getTokenData } from "../../../serviceToken/tokenUtils";
 
 function CreateClubModa(props) {
     const { loadClubs, isModalOpen, setIsModelOpen } = props;
     const [form] = Form.useForm();
-    const [file, setFile] = useState(null);
     const tokenData = getTokenData();//tokenData.access_token
 
     const handleSubmit = async (values) => {
         const formattedData = {
             ...values,
-            openHour: values.openHour ? moment(values.openHour).format("HH:mm") : "",
-            closeHour: values.closeHour ? moment(values.closeHour).format("HH:mm") : ""
+            openHour: values.openHour ? dayjs(values.openHour).format("HH:mm") : "",
+            closeHour: values.closeHour ? dayjs(values.closeHour).format("HH:mm") : "",
         };
-
         const reponse = await CreateClub(formattedData, tokenData.access_token);
-        console.log("reponse: ", reponse);
-
-        if (reponse.data) {
+        if (reponse != null) {
             notification.success({
                 message: "Create Club",
                 description: "Club created successfully."
             });
-
-            const clubId = reponse.data.id;
-            const imageFormData = new FormData();
-            imageFormData.append("clubId", clubId);
-            imageFormData.append("file", file);
-
-            const imageRes = await AddMoreImageClub(imageFormData, tokenData.access_token);
-            console.log("imageRes: ", imageRes);
-
-            if (imageRes.data) {
-                notification.success({
-                    message: "Image Upload",
-                    description: "Club image uploaded successfully."
-                });
-            } else {
-                notification.error({
-                    message: "Error Uploading Image",
-                    description: "Image upload failed."
-                });
-            }
             resetAndCloseModal();
             await loadClubs();
         } else {
@@ -58,7 +33,6 @@ function CreateClubModa(props) {
     const resetAndCloseModal = () => {
         setIsModelOpen(false);
         form.resetFields();
-        setFile(null);
     };
 
     return (
@@ -87,19 +61,9 @@ function CreateClubModa(props) {
                 <Form.Item name="openHour" label="Open Hour" rules={[{ required: true, message: "Open hour is required." }]}>
                     <TimePicker format="HH:mm" />
                 </Form.Item>
+
                 <Form.Item name="closeHour" label="Close Hour" rules={[{ required: true, message: "Close hour is required." }]}>
                     <TimePicker format="HH:mm" />
-                </Form.Item>
-                <Form.Item label="Upload Image">
-                    <Upload
-                        beforeUpload={(file) => {
-                            setFile(file);
-                            return false;
-                        }}
-                        showUploadList={false}
-                    >
-                        <Button>Select File</Button>
-                    </Upload>
                 </Form.Item>
             </Form>
         </Modal>

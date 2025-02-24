@@ -31,6 +31,9 @@ export const fetchAllClubs = async (token) => {
 };
 
 export const CreateClub = async (newData, token) => {
+
+    console.log("new data của create club", newData);
+
     try {
         const response = await fetch(`${APIGetWay}/dashboard/club/add`, {
             method: 'POST',
@@ -81,6 +84,33 @@ export const AddMoreImageClub = async (formData, token) => {
         }
     } catch (error) {
         console.error("Lỗi khi add ImageClub:", error.message);
+        return `Lỗi: ${error.message}`;
+    }
+};
+
+export const UpdateImageClub = async (ImageId, formData, token) => {
+    try {
+        const response = await fetch(`${APIGetWay}/dashboard/clubImage/update/${ImageId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            credentials: "include",
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Lỗi ${response.status}: ${errorText}`);
+        }
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            return await response.text();
+        }
+    } catch (error) {
+        console.error("Lỗi khi update ImageClub:", error.message);
         return `Lỗi: ${error.message}`;
     }
 };
