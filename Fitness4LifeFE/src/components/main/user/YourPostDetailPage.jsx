@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Divider, Spin, notification, Button } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
-import { GetAllQuestion } from "../../../services/forumService";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -10,13 +11,14 @@ const YourPostDetailPage = () => {
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
+    const tokenData = getTokenData();
 
     useEffect(() => {
         const fetchPostDetail = async () => {
             try {
-                const response = await GetAllQuestion();
+                const response = await GetAllQuestion(tokenData.access_token);
                 if (response.status === 200) {
-                    const allPosts = response.data.data;
+                    const allPosts = response.data;
                     const foundPost = allPosts.find((p) => p.id === Number(postId));
                     setPost(foundPost || null);
                 } else {

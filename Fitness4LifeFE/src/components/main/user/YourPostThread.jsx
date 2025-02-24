@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Button, Typography, List, notification } from "antd";
-import { DataContext } from "../../helpers/DataContext";
 import { useNavigate } from "react-router-dom";
-import { GetAllQuestion } from "../../../services/forumService";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
 
 const { Title, Text } = Typography;
 
@@ -11,29 +11,27 @@ const YourPostThread = () => {
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState("ALL"); // "ALL", "PENDING", "UNDER_REVIEW", "APPROVED"
-    const { user } = useContext(DataContext);
     const navigate = useNavigate();
-
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
     useEffect(() => {
         const fetchUserPosts = async () => {
             try {
-                const response = await GetAllQuestion();
-                console.log("response: ", response);
-
+                const response = await GetAllQuestion(tokenData.access_token);
                 if (response.status === 200) {
-                    const allPosts = response.data.data;
+                    const allPosts = response.data;
 
                     if (!Array.isArray(allPosts)) {
                         throw new Error("Invalid API data format. Expected an array.");
                     }
 
-                    if (!user?.id || !user?.fullName) {
+                    if (!decotoken?.id || !decotoken?.fullName) {
                         throw new Error("User data is missing or invalid.");
                     }
 
                     const userPosts = allPosts.filter(
                         (post) =>
-                            post.author?.trim().toLowerCase() === user?.fullName.trim().toLowerCase()
+                            post.author?.trim().toLowerCase() === decotoken?.fullName.trim().toLowerCase()
                     );
 
                     setPosts(userPosts);
@@ -55,7 +53,7 @@ const YourPostThread = () => {
         };
 
         fetchUserPosts();
-    }, [user]);
+    }, []);
 
     const handlePostClick = (postId) => {
         navigate(`/post/${postId}`); // Điều hướng đến trang chi tiết bài viết

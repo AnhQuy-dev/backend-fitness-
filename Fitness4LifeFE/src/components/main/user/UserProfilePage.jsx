@@ -1,31 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-    Card,
-    Avatar,
-    Button,
-    Row,
-    Col,
-    Typography,
-    Divider,
-    Space,
-    notification,
-    Modal
-} from "antd";
-import {
-    PhoneOutlined,
-    EnvironmentOutlined,
-    GlobalOutlined,
-    EditOutlined,
-    HistoryOutlined,
-    FileTextOutlined,
-    UserOutlined
-} from "@ant-design/icons";
+import { Card, Avatar, Button, Row, Col, Typography, Divider, Space, notification, Modal } from "antd";
+import { PhoneOutlined, EnvironmentOutlined, GlobalOutlined, EditOutlined, HistoryOutlined, FileTextOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import UpdateProfileModal from "./UpdateProfileModal";
 import ChangePasswordModal from "../login/ChangePasswordModal";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
 import { getUserByEmail } from "../../../serviceToken/authService";
-
+import UpdateProfileModal from "./UpdateProfileModal";
 const { Title, Text } = Typography;
 
 const styles = {
@@ -97,33 +77,24 @@ const UserProfilePage = () => {
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isImageModalVisible, setIsImageModalVisible] = useState(false);
     const navigate = useNavigate();
-
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
     useEffect(() => {
         const fetchUserData = async () => {
-            const tokenData = localStorage.getItem("tokenData");
             if (!tokenData) {
                 setLoading(false);
                 return;
             }
-
             try {
-                const { access_token } = JSON.parse(tokenData);
-                const decodedToken = jwtDecode(access_token);
-                const userEmail = decodedToken?.sub;
-
-                if (!userEmail) {
+                if (!decotoken.sub) {
                     notification.error({
                         message: "Error",
                         description: "Invalid token data"
                     });
                     return;
                 }
-
-                const response = await getUserByEmail(userEmail, access_token);
-                // console.log("response123", response);
-
+                const response = await getUserByEmail(decotoken.sub, tokenData.access_token);
                 if (response) {
-                    // Ensure profile data exists with default values if needed
                     const userDataWithDefaults = {
                         ...response,
                         profile: response.profile || {
@@ -138,7 +109,6 @@ const UserProfilePage = () => {
                     };
 
                     setUserData(userDataWithDefaults);
-                    localStorage.setItem("user", JSON.stringify(userDataWithDefaults));
                 } else {
                     notification.error({
                         message: "Error",
@@ -154,25 +124,16 @@ const UserProfilePage = () => {
                 setLoading(false);
             }
         };
-
         fetchUserData();
     }, []);
 
     const handleProfileUpdate = async () => {
-        const tokenData = localStorage.getItem("tokenData");
         if (!tokenData) return;
-
         try {
-            const { access_token } = JSON.parse(tokenData);
-            const decodedToken = jwtDecode(access_token);
-            const userEmail = decodedToken?.sub;
-
-            if (!userEmail) return;
-
-            const response = await getUserByEmail(userEmail, access_token);
+            if (!decotoken?.sub) return;
+            const response = await getUserByEmail(decotoken?.sub, tokenData.access_token);
             if (response) {
                 setUserData(response);
-                localStorage.setItem("user", JSON.stringify(response));
             }
         } catch (error) {
             notification.error({
@@ -255,14 +216,7 @@ const UserProfilePage = () => {
                                     >
                                         Update Profile
                                     </Button>
-                                    <Button
-                                        type="default"
-                                        icon={<FileTextOutlined />}
-                                        style={styles.actionButton}
-                                        onClick={() => navigate("/post-thread")}
-                                    >
-                                        Create Post
-                                    </Button>
+
                                     <Button
                                         type="dashed"
                                         icon={<FileTextOutlined />}
@@ -380,7 +334,6 @@ const UserProfilePage = () => {
                             handleProfileUpdate();
                         }
                     }}
-                    userId={userData.id}
                     userData={{
                         fullName,
                         phone,

@@ -47,7 +47,7 @@ public class PublicController {
         }
     }
 
-    // API get all Club with primary image
+    //Lấy tất cả club có hình ảnh chính
     @GetMapping("clubImage/image-primary")
     //@PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> getAllClubWithImagePrimary() {

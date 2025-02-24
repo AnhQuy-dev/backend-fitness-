@@ -31,7 +31,7 @@ public class ClubService {
     private final FileUpload fileUpload;
     private String subFolder = "ClubImage";
     String upFolder = "uploads";
-    private String rootUrl = "http://localhost:8080/";
+    private String rootUrl = "http://localhost:8081/";
     private String urlImage = rootUrl + upFolder + File.separator + subFolder;
 
     //Handle get all data
@@ -55,7 +55,6 @@ public class ClubService {
         if (existByContactPhone(clubDTO.getContactPhone())) {
             throw new RuntimeException("ContactPhoneAlreadyExists");
         }
-
         clubDTO.setCreateAt(LocalDateTime.now());
         Club club = objectMapper.convertValue(clubDTO, Club.class);
         club = clubRepository.save(club);
@@ -102,7 +101,7 @@ public class ClubService {
         }
     }
 
-    //handle add club image
+    //Xử lý thêm hình ảnh ban đầu khi user đã tạo club
     public ClubImages addClubImages(ClubImageDTO clubImageDTO) throws IOException {
         if (clubImageDTO.isPrimary()) {
             boolean hasPrimaryImage = clubImageRepository
@@ -132,7 +131,7 @@ public class ClubService {
         return clubImageRepository.findById(id);
     }
 
-    //Handle update image of Club
+    //Xử lý chỉnh sửa hình ảnh nếu user muốn
     @Transactional
     public ClubImages updateClubImage(int imageId, ClubImageDTO clubImageDTO) throws IOException {
         if (clubImageDTO.isPrimary()) {
@@ -158,7 +157,7 @@ public class ClubService {
         Optional<Club> club = clubRepository.findById(clubImageDTO.getClubId());
         ClubImages clubImages = ClubImages.builder()
                 .id(imageId)
-                .createdAt(LocalDateTime.now())
+                //.createdAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
                 .imageUrl(clubImageUrl)
                 .isPrimary(clubImageDTO.isPrimary())
@@ -167,7 +166,7 @@ public class ClubService {
         return clubImageRepository.save(clubImages);
     }
 
-    //Handle get all club with primary image
+    //Lấy tất cả club được có ảnh chính
     public List<ClubPrimaryImageDTO> getAllClubWithPrimaryImage() {
         List<Club> clubs = clubRepository.findAll();
         List<ClubPrimaryImageDTO> clubImageDTOs = new ArrayList<>();
@@ -200,7 +199,7 @@ public class ClubService {
         return clubImageDTOs;
     }
 
-    //Handle delete image of club by id
+    //Xử lý xóa hình ảnh theo id
     public ClubImages deleteClubImageById(int id) {
         Optional<ClubImages> imageExisting = clubImageRepository.findById(id);
         if (imageExisting.get().getImageUrl() != null) {

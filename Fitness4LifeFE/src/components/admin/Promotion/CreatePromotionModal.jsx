@@ -23,7 +23,7 @@ const CreatePromotionModal = ({ visible, onClose, onSuccess }) => {
             console.log('new data: ', newPromotion);
 
 
-            const tokenData = getTokenData();
+            const tokenData = getTokenData();//tokenData.access_token
 
             const response = await createPromotions(newPromotion, tokenData.access_token);
             if (response != null) {

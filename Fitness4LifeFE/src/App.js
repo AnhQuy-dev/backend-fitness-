@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Outlet, Navigate } from 'react-router-dom';
-import Sidebar from './components/admin/Sidebar';
-import Navbar from './components/admin/Navbar';
 import Home from './components/admin/page/Home';
 import AdminDashboard from './components/admin/page/AdminDashboard';
 import AdminLayout from './components/layout/AdminLayout';
@@ -33,7 +31,6 @@ import WhatsNew from './components/main/forum/WhatsNew';
 import PostNew from './components/main/forum/PostNew';
 import CreateNewPost from './components/main/forum/CreateNewPost';
 import DetailPage from './components/main/forum/DetailPage';
-import CreatePostQuestions from './components/main/user/CreatePostQuestions';
 import YourPostThread from './components/main/user/YourPostThread';
 import YourPostDetailPage from './components/main/user/YourPostDetailPage';
 import UpdateQuestion from './components/main/forum/UpdateQuestion';
@@ -85,7 +82,6 @@ const App = () => {
               <Route path="create-new-post" element={<CreateNewPost />} />
             </Route>
             <Route path="forum/:id" element={<DetailPage />} />
-            <Route path="/post-thread" element={<CreatePostQuestions />} />
             <Route path="/your-posts" element={<YourPostThread />} />
             <Route path="/post/:postId" element={<YourPostDetailPage />} />
             <Route path="/update-question/:postId" element={<UpdateQuestion />} />

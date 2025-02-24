@@ -25,28 +25,28 @@ const PostPage = () => {
 
     const [filterStatus, setFilterStatus] = useState("ALL"); // Trạng thái lọc của bài viết bên USER tab
 
-    const fetchQuestions = async () => {
-        try {
-            setLoading(true);
-            const response = await GetAllQuestion();
-            if (response.status === 200) {
-                // Phân loại bài viết theo rolePost
-                const privatePosts = response.data.data.filter((q) => q.rolePost === "PRIVATES");
-                const publicPosts = response.data.data.filter((q) => q.rolePost === "PUBLICED");
+    // const fetchQuestions = async () => {
+    //     try {
+    //         setLoading(true);
+    //         const response = await GetAllQuestion();
+    //         if (response.status === 200) {
+    //             // Phân loại bài viết theo rolePost
+    //             const privatePosts = response.data.data.filter((q) => q.rolePost === "PRIVATES");
+    //             const publicPosts = response.data.data.filter((q) => q.rolePost === "PUBLICED");
 
-                setPrivateQuestions(privatePosts);
-                setPublicQuestions(publicPosts);
+    //             setPrivateQuestions(privatePosts);
+    //             setPublicQuestions(publicPosts);
 
-                // message.success("Lấy danh sách bài viết thành công!");
-            } else {
-                message.error(response.message || "Lấy danh sách thất bại!");
-            }
-        } catch (error) {
-            message.error("Có lỗi xảy ra khi gọi API!");
-        } finally {
-            setLoading(false);
-        }
-    };
+    //             // message.success("Lấy danh sách bài viết thành công!");
+    //         } else {
+    //             message.error(response.message || "Lấy danh sách thất bại!");
+    //         }
+    //     } catch (error) {
+    //         message.error("Có lỗi xảy ra khi gọi API!");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const handleUpdate = (id) => {
         message.info(`Cập nhật bài viết ID: ${id}`);
@@ -58,7 +58,7 @@ const PostPage = () => {
             const response = await deleteQuestion(id);
             if (response.status === 200) {
                 message.success("Xóa bài viết thành công!");
-                fetchQuestions(); // Tải lại danh sách bài viết sau khi xóa
+                // fetchQuestions(); // Tải lại danh sách bài viết sau khi xóa
             } else {
                 message.error(response.message || "Xóa bài viết thất bại!");
             }
@@ -84,7 +84,7 @@ const PostPage = () => {
 
                 if (response.status === 201) {
                     message.success("Cập nhật trạng thái bài viết thành công!");
-                    fetchQuestions(); // Tải lại danh sách bài viết sau khi cập nhật trạng thái
+                    // fetchQuestions(); // Tải lại danh sách bài viết sau khi cập nhật trạng thái
                 } else {
                     message.error(response.message || "Cập nhật trạng thái thất bại!");
                 }
@@ -95,7 +95,7 @@ const PostPage = () => {
 
                 if (response.status === 201) {
                     message.success("Cập nhật trạng thái bài viết thành công!");
-                    fetchQuestions(); // Tải lại danh sách bài viết sau khi cập nhật trạng thái
+                    // fetchQuestions(); // Tải lại danh sách bài viết sau khi cập nhật trạng thái
                 } else {
                     message.error(response.message || "Cập nhật trạng thái thất bại!");
                 }
@@ -130,7 +130,7 @@ const PostPage = () => {
     };
 
     useEffect(() => {
-        fetchQuestions();
+        // fetchQuestions();
     }, []);
 
     // Pagination logic
@@ -296,7 +296,7 @@ const PostPage = () => {
             <CreateQuestionModal
                 isOpen={isCreateModalOpen}
                 onClose={onCloseCreateModal}
-                onQuestionCreated={fetchQuestions}
+            // onQuestionCreated={fetchQuestions}
             />
         </div>
     );

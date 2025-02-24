@@ -1,9 +1,9 @@
-import { DeleteOutlined, EditOutlined, LockOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Input, Menu, Popconfirm, Table } from "antd";
+import { EditOutlined, LockOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Input, Table } from "antd";
 import { useEffect, useState } from "react";
 import ViewUserDetail from './DetailUser';
 import UpdateUser from './UpdateUser';
-import ChangePass from './ChangPass';
+import ResetPassWord from './ResetPassWord';
 
 function AllUsers(props) {
     const { dataUsers, loadUsers, setFilteredData, filteredData, setIsModelOpen } = props
@@ -19,6 +19,8 @@ function AllUsers(props) {
     const [isChangePassOpen, setChangePassOpen] = useState(false)
 
     const [emailFilters, setEmailFilters] = useState([]);
+
+    const [emailChangePass, setEmailChangePass] = useState(null);
     useEffect(() => {
         const uniqueEmails = [...new Set(dataUsers.map(user => user.email))];
         const filters = uniqueEmails.map(email => ({
@@ -28,23 +30,11 @@ function AllUsers(props) {
         setEmailFilters(filters);
     }, [dataUsers]);
 
-
     const [searchText, setSearchText] = useState('');
     const handleSearch = (value) => {
         const filtered = dataUsers.filter((item) => item.fullName.toLowerCase().includes(value.toLowerCase()));
         setFilteredData(filtered);
     };
-
-
-
-    const onChange = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-
-
-    const handleChangePassUser = async () => {
-
-    }
 
     const columns = [
         {
@@ -113,37 +103,29 @@ function AllUsers(props) {
             title: 'Action',
             key: 'is_active',
             render: (_, record) => {
-                const menu = (
-                    <Menu>
-                        <Menu.Item
-                            key="edit"
-                            icon={<EditOutlined style={{ color: 'orange' }} />}
-                            onClick={() => {
-                                setDataUpdate(record);
-                                setIsModalUpdateOpen(true);
-                            }}
-                        >
-                            Edit
-                        </Menu.Item>
-                        <Menu.Item
-                            key="changePass"
-                            icon={<LockOutlined style={{ color: 'blue' }} />}
-                        >
-                            <Popconfirm
-                                title="Change Pass"
-                                onConfirm={() => handleChangePassUser(record.id)}
-                                placement="left"
-                                onClick={() => {
-                                    setChangePassOpen(true);
-                                }}
-                            >
-                                ChangePass
-                            </Popconfirm>
-                        </Menu.Item>
-                    </Menu>
-                );
+                const menuItems = [
+                    {
+                        key: "edit",
+                        label: "Edit",
+                        icon: <EditOutlined style={{ color: 'orange' }} />,
+                        onClick: () => {
+                            setDataUpdate(record);
+                            setIsModalUpdateOpen(true);
+                        }
+                    },
+                    {
+                        key: "ResetPass",
+                        label: "ResetPass",
+                        icon: <LockOutlined style={{ color: 'blue' }} />,
+                        onClick: () => {
+                            setEmailChangePass(record.email);
+                            setChangePassOpen(true);
+                        }
+                    }
+                ];
+
                 return (
-                    <Dropdown overlay={menu} trigger={['click']} placement="bottomLeft">
+                    <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomLeft">
                         <MoreOutlined
                             style={{
                                 fontSize: '18px',
@@ -206,9 +188,6 @@ function AllUsers(props) {
                     columns={columns}
                     dataSource={filteredData}
                     rowKey={"id"}
-                    onChange={onChange}
-
-
                 />
             </div>
 
@@ -227,9 +206,10 @@ function AllUsers(props) {
                 setIsDataDetailOpen={setIsDataDetailOpen}
             />
 
-            <ChangePass
+            <ResetPassWord
                 isChangePassOpen={isChangePassOpen}
                 setChangePassOpen={setChangePassOpen}
+                email={emailChangePass}
             />
         </>
     )

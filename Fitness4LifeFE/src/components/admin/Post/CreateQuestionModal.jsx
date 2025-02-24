@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Modal, Form, Input, Upload, Button, message, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { CreateQuestion } from "../../../services/forumService";
-import { DataContext } from "../../helpers/DataContext";
+import { CreateQuestion } from "../../../serviceToken/ForumService";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
 
 const { Option } = Select;
 
@@ -40,11 +40,12 @@ const statusOptions = [
 const CreateQuestionModal = ({ isOpen, onClose, onQuestionCreated }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const { user } = useContext(DataContext);
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
 
-    const initialValues = user?.role === "ADMIN" ? {
-        authorId: user.id,
-        author: user.fullName,
+    const initialValues = decotoken.role === "ADMIN" ? {
+        authorId: decotoken.id,
+        author: decotoken.fullName,
         status: "APPROVED", // Gán mặc định status là APPROVED
     } : {};
 
@@ -75,7 +76,7 @@ const CreateQuestionModal = ({ isOpen, onClose, onQuestionCreated }) => {
 
         try {
             setLoading(true);
-            const response = await CreateQuestion(formData);
+            const response = await CreateQuestion(formData, tokenData.access_token);
             console.log("response: ", response);
 
             if (response.status === 201) {

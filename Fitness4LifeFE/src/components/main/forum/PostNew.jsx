@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { List, Typography, Spin, Button } from "antd";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
-import { GetAllQuestion } from "../../../services/forumService";
 import CategoryModal from "./CategoryModal"; // Import CategoryModal
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -12,13 +13,14 @@ const PostNew = () => {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái hiển thị modal
     const navigate = useNavigate();
+    const tokenData = getTokenData();
 
     useEffect(() => {
         const fetchAllArticles = async () => {
             try {
-                const response = await GetAllQuestion();
+                const response = await GetAllQuestion(tokenData.access_token);
                 if (response.status === 200) {
-                    const allArticles = response.data.data;
+                    const allArticles = response.data;
                     const approvedQuestions = allArticles.filter(
                         (q) => q.status === "APPROVED"
                     );

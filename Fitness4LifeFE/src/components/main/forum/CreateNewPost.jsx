@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { Form, Input, Upload, Button, message, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CreateQuestion } from "../../../services/forumService";
-import { DataContext } from "../../helpers/DataContext";
+import { CreateQuestion } from "../../../serviceToken/ForumService";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
 
 const { Option } = Select;
 
@@ -41,9 +41,11 @@ const statusOptions = [
 const CreateNewPost = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const { user } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
+    console.log("decotoken: ", decotoken);//tokenData.access_token
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -62,8 +64,8 @@ const CreateNewPost = () => {
     }, [location, form]);
 
     const initialValues = {
-        authorId: user?.id || "Không xác định",
-        author: user?.fullName || "Không xác định",
+        authorId: decotoken?.id || "Không xác định",
+        author: decotoken?.fullName || "Không xác định",
         status: "PENDING",
     };
 
@@ -89,15 +91,9 @@ const CreateNewPost = () => {
             });
         }
 
-        // Log chi tiết FormData
-        // console.log("data post new: ");
-        // for (let [key, value] of formData.entries()) {
-        //     console.log(`${key}:`, value);
-        // }
-
         try {
             setLoading(true);
-            const response = await CreateQuestion(formData);
+            const response = await CreateQuestion(formData, tokenData.access_token);
             // console.log("response: ", response);
             if (response.status === 201) {
                 message.success("Tạo bài viết thành công!");

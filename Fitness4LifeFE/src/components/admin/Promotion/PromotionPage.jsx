@@ -22,7 +22,7 @@ const PromotionPage = () => {
     const [isSendCodeToUserModalVisible, setIsSendCodeToUserModalVisible] = useState(false);
     const pollingInterval = useRef(null); // Dùng để lưu interval polling
     const [isCreatePromotionInJsonModaVisible, setIsCreatePromotionInJsonModaVisible] = useState(false); // Trạng thái hiển thị modal tạo mới
-    const tokenData = getTokenData();
+    const tokenData = getTokenData();//tokenData.access_token
     // Hàm gọi API lấy danh sách khuyến mãi
     const fetchPromotions = async () => {
         setLoading(true);

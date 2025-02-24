@@ -77,6 +77,7 @@ public class ManagerController {
     }
 
     //======================= CLUB IMAGE ============================
+    /// Tạo hình ảnh bàn đầu cho club
     @PostMapping("clubImage/add")
     //@PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> saveClubImage(@Valid @ModelAttribute ClubImageDTO clubImageDTO, BindingResult bindingResult) {
@@ -102,6 +103,7 @@ public class ManagerController {
         }
     }
 
+    /// Chỉnh sửa hình ảnh của club
     @PutMapping("clubImage/update/{id}")
     //@PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> updateImageClub(@PathVariable int id,
@@ -127,6 +129,7 @@ public class ManagerController {
         }
     }
 
+
     @DeleteMapping("clubImage/delete/{id}")
     //@PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
     public ResponseEntity<?> deleteImageClub(@PathVariable int id) {
@@ -143,9 +146,10 @@ public class ManagerController {
         }
     }
 
+    /// Chọn hình ảnh chính cho club
     @PutMapping("clubImage/primary/{id}")
     //@PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
-    public ResponseEntity<?> updateImagePrimaryClub(@PathVariable int id) {
+    public ResponseEntity<?> updateImagePrimaryClub(@PathVariable int id ) {
         try {
             Optional<ClubImages> clubImageExisting = clubService.findClubImageById(id);
             if (clubImageExisting.isEmpty()) {

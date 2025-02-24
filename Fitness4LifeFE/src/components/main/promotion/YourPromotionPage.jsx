@@ -66,7 +66,7 @@ const YourPromotionPage = () => {
     const fetchUserPoints = async () => {
         try {
             const response = await getUserPoint(decotoken.id, tokenData.access_token);
-            setUserPoints(response?.data);
+            setUserPoints(response?.data ?? 0);
         } catch (err) {
             console.error("Error fetching user points:", err);
             setError("Failed to fetch user points. Please try again.");
@@ -146,80 +146,49 @@ const YourPromotionPage = () => {
                     {/* Tab YourVoucher */}
                     <TabPane tab="YourVoucher" key="1">
                         {/* Hiển thị thông tin về khuyến mãi */}
-                        {loading && (
+                        {loading ? (
                             <Spin tip="Loading...">
                                 <Alert message="Fetching your promotions" type="info" />
                             </Spin>
-                        )}
-                        {error && <Alert message={error} type="error" style={{ marginBottom: "20px" }} />}
-
-                        <Row gutter={[16, 16]}>
-                            {promotions.map((promotion) => (
-                                <Col span={6} key={promotion.id}>
-                                    <Card
-                                        hoverable
-                                        style={{
-                                            borderRadius: "10px",
-                                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                            position: "relative", // Đặt relative để overlay được định vị chính xác
-                                        }}
-                                        cover={
-                                            <div style={{ position: "relative" }}>
-                                                <img
-                                                    alt="promotion"
-                                                    src={
-                                                        "https://cdn.tgdd.vn/News/1062931/bi-quyet-chup-anh-01-01-01-1280x720.jpg"
-                                                    }
-                                                    style={{
-                                                        borderRadius: "10px 10px 0 0",
-                                                        height: "200px", // Đặt kích thước cho hình ảnh
-                                                        objectFit: "cover",
-                                                        width: "100%",
-                                                    }}
-                                                />
-                                                {/* Thêm overlay nếu promotionAmount > 1 */}
-                                                {promotion.promotionAmount > 1 && (
-                                                    <div
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: "10px",
-                                                            right: "10px",
-                                                            background: "rgba(255, 0, 0, 0.8)",
-                                                            color: "white",
-                                                            fontWeight: "bold",
-                                                            fontSize: "16px",
-                                                            borderRadius: "5px",
-                                                            padding: "5px 10px",
-                                                            zIndex: 1,
-                                                        }}
-                                                    >
-                                                        X{promotion.promotionAmount}
+                        ) : promotions.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "20px" }}>
+                                <img
+                                    src="https://cdn.tgdd.vn/News/1062931/bi-quyet-chup-anh-01-01-01-1280x720.jpg"
+                                    alt="No Vouchers"
+                                    style={{ maxWidth: "100%", borderRadius: "10px" }}
+                                />
+                                <p>Bạn chưa có mã giảm giá nào.</p>
+                            </div>
+                        ) : (
+                            <Row gutter={[16, 16]}>
+                                {promotions.map((promotion) => (
+                                    <Col span={6} key={promotion.id}>
+                                        <Card
+                                            hoverable
+                                            cover={<img alt="promotion" src="https://cdn.tgdd.vn/News/1062931/bi-quyet-chup-anh-01-01-01-1280x720.jpg" />}
+                                            actions={[
+                                                <Button key="viewDetails" type="link" onClick={() => handleRowClick(promotion)}>
+                                                    điều kiện
+                                                </Button>,
+                                            ]}
+                                        >
+                                            <Card.Meta
+                                                title={promotion.title}
+                                                description={
+                                                    <div>
+                                                        <Tag color={promotion.isUsed ? "red" : "green"}>
+                                                            {promotion.isUsed ? "Used" : "Available"}
+                                                        </Tag>
+                                                        <p>Discount: {promotion.discountValue}%</p>
+                                                        <p>Valid: {promotion.startDate} - {promotion.endDate}</p>
                                                     </div>
-                                                )}
-                                            </div>
-                                        }
-                                        actions={[
-                                            <Button key="viewDetails" type="link" onClick={() => handleRowClick(promotion)}>
-                                                điều kiện
-                                            </Button>,
-                                        ]}
-                                    >
-                                        <Card.Meta
-                                            title={promotion.title}
-                                            description={
-                                                <div>
-                                                    <Tag color={promotion.isUsed ? "red" : "green"}>
-                                                        {promotion.isUsed ? "Used" : "Available"}
-                                                    </Tag>
-                                                    <p>Discount: {promotion.discountValue}%</p>
-                                                    <p>Valid: {promotion.startDate} - {promotion.endDate}</p>
-                                                </div>
-                                            }
-                                        />
-                                    </Card>
-                                </Col>
-                            ))}
-                        </Row>
+                                                }
+                                            />
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        )}
 
                     </TabPane>
 

@@ -13,7 +13,7 @@ const ForumPage = () => {
     const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
     const location = useLocation();
     const navigate = useNavigate();
-
+    const tokenData = getTokenData();
     // Lấy category từ URL
     const searchParams = new URLSearchParams(location.search);
     const categoryParam = searchParams.get("category");
@@ -23,12 +23,11 @@ const ForumPage = () => {
     const fetchQuestions = async () => {
         try {
             setLoading(true);
-            const tokenData = getTokenData();
             const response = await GetAllQuestion(tokenData.access_token);
             // console.log("API Response Data:", response);
 
             if (response.status === 200) {
-                const allQuestions = response.data.data;
+                const allQuestions = response.data;
 
                 // Lọc bài viết có status = APPROVED
                 const approvedQuestions = allQuestions.filter(
@@ -60,7 +59,7 @@ const ForumPage = () => {
     useEffect(() => {
         fetchQuestions();
     }, [category]);
-    console.log("questions : ", questions);
+    // console.log("questions : ", questions);
 
     return (
         <section id="services">

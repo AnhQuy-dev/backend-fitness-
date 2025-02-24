@@ -1,13 +1,16 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Modal, Form, Input, Button, Upload, notification, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Option } from "antd/es/mentions";
-import { UpdateProflie } from "../../../services/authService";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
+import { updateUserAPI } from "../../../serviceToken/authService";
 
 
-const UpdateProfileModal = ({ open, onClose, userId, userData }) => {
+const UpdateProfileModal = ({ open, onClose, userData }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
 
     // Giá trị enum cho Gender
     const genderOptions = [
@@ -24,50 +27,46 @@ const UpdateProfileModal = ({ open, onClose, userId, userData }) => {
     ];
 
     // Xử lý submit form
-    // const handleSubmit = async (values) => {
-    //     const formData = new FormData();
-    //     Object.entries(values).forEach(([key, value]) => {
-    //         if (value !== undefined && value !== null) {
-    //             formData.append(key, value);
-    //         }
-    //     });
+    const handleSubmit = async (values) => {
+        const formData = new FormData();
+        Object.entries(values).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                formData.append(key, value);
+            }
+        });
 
-    //     if (values.file) {
-    //         formData.append("file", values.file.file);
-    //     }
-    //     else {
-    //         // Giữ nguyên avatar nếu không có file mới
-    //         formData.append("avatar", user.profileDTO.avatar);
-    //     }
+        if (values.file) {
+            formData.append("file", values.file.file);
+        }
+        else {
+            // Giữ nguyên avatar nếu không có file mới
+            formData.append("avatar", userData.avatar);
+        }
 
-    //     try {
-    //         setLoading(true);
-    //         const response = await UpdateProflie(userId, formData);
-    //         if (response.status === 200) {
-    //             // Cập nhật DataContext sau khi cập nhật thành công
-    //             const updatedUser = { ...user, ...values }; // Dữ liệu mới
-    //             notification.success({
-    //                 message: "Cập nhật thành công",
-    //                 description: "Thông tin người dùng đã được cập nhật.",
-    //             });
-    //             onClose(updatedUser); // Gửi dữ liệu mới về `UserProfilePage`
-    //         } else {
-    //             notification.error({
-    //                 message: "Cập nhật thất bại",
-    //                 description: response.message || "Có lỗi xảy ra.",
-    //             });
-    //         }
-    //     } catch (error) {
-    //         notification.error({
-    //             message: "Lỗi",
-    //             description: "Không thể cập nhật thông tin.",
-    //         });
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-
+        try {
+            setLoading(true);
+            const response = await updateUserAPI(decotoken.id, formData, tokenData.access_token);
+            if (response != null) {
+                notification.success({
+                    message: "Cập nhật thành công",
+                    description: "Thông tin người dùng đã được cập nhật.",
+                });
+                onClose(true);
+            } else {
+                notification.error({
+                    message: "Cập nhật thất bại",
+                    description: response.message || "Có lỗi xảy ra.",
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: "Lỗi",
+                description: "Không thể cập nhật thông tin.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <Modal
             title="Cập Nhật Thông Tin"
@@ -80,7 +79,7 @@ const UpdateProfileModal = ({ open, onClose, userId, userData }) => {
                 form={form}
                 initialValues={userData}
                 layout="vertical"
-            // onFinish={handleSubmit}
+                onFinish={handleSubmit}
             >
                 <Form.Item label="Họ và tên" name="fullName">
                     <Input placeholder="Nhập họ và tên" />

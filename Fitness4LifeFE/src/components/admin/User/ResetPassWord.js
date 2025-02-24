@@ -1,10 +1,9 @@
 import { Input, Modal, Button, notification } from "antd";
 import { useState } from "react";
-import { GetOTP, ResetPass } from "../../../services/UsersService";
+import { GetOTP, ResetPass } from "../../../serviceToken/authService";
 
-function ChangePass(props) {
-    const { isChangePassOpen, setChangePassOpen } = props;
-    const [email, setEmail] = useState("");
+function ResetPassWord(props) {
+    const { isChangePassOpen, setChangePassOpen, email } = props; // Nhận email từ props
     const [OTP, setOTP] = useState("");
     const [loading, setLoading] = useState(false);
     const [sendingOTP, setSendingOTP] = useState(false);
@@ -13,14 +12,14 @@ function ChangePass(props) {
         if (!email) {
             notification.error({
                 message: "Lỗi",
-                description: "Vui lòng nhập email trước khi gửi OTP.",
+                description: "Không tìm thấy email.",
             });
             return;
         }
 
         try {
             setSendingOTP(true);
-            await GetOTP(email); // Gọi API để gửi OTP
+            await GetOTP(email); // Gọi API gửi OTP
             notification.success({
                 message: "Thành công",
                 description: "OTP đã được gửi đến email của bạn.",
@@ -36,10 +35,10 @@ function ChangePass(props) {
     };
 
     const handleResetPass = async () => {
-        if (!email || !OTP) {
+        if (!OTP) {
             notification.error({
                 message: "Lỗi",
-                description: "Email và OTP không được để trống!",
+                description: "Vui lòng nhập OTP!",
             });
             return;
         }
@@ -55,7 +54,7 @@ function ChangePass(props) {
         } catch (error) {
             notification.error({
                 message: "Lỗi",
-                description: error.response?.data?.message || "This OTP code was used",
+                description: error.response?.data?.message || "OTP không hợp lệ.",
             });
         } finally {
             setLoading(false);
@@ -63,35 +62,13 @@ function ChangePass(props) {
     };
 
     const resetAndCloseModal = () => {
-        setEmail("");
         setOTP("");
         setChangePassOpen(false);
     };
 
-    const handleChange = (field, value) => {
-        if (field === "email") {
-            setEmail(value);
-        } else if (field === "OTP") {
-            setOTP(value);
-        }
-    };
-
     return (
         <Modal
-            title={
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        paddingBottom: "10px",
-                    }}
-                >
-                    <span style={{ fontWeight: "bold", fontSize: "16px" }}>
-                        Đổi mật khẩu
-                    </span>
-                </div>
-            }
+            title={<span style={{ fontWeight: "bold", fontSize: "16px" }}>Đổi mật khẩu</span>}
             open={isChangePassOpen}
             onOk={handleResetPass}
             onCancel={resetAndCloseModal}
@@ -100,17 +77,17 @@ function ChangePass(props) {
             confirmLoading={loading}
             maskClosable={false}
         >
-            <div style={{ display: "flex", gap: "15px", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <Input
                     placeholder="Email"
-                    value={email}
-                    onChange={(e) => handleChange("email", e.target.value)}
+                    value={email} // Hiển thị email nhưng không cho chỉnh sửa
+                    disabled
                 />
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <Input
-                        placeholder="OTP"
+                        placeholder="Nhập OTP"
                         value={OTP}
-                        onChange={(e) => handleChange("OTP", e.target.value)}
+                        onChange={(e) => setOTP(e.target.value)}
                     />
                     <Button
                         type="primary"
@@ -125,4 +102,4 @@ function ChangePass(props) {
     );
 }
 
-export default ChangePass;
+export default ResetPassWord;

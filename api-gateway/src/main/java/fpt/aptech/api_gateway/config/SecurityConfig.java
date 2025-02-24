@@ -44,7 +44,6 @@ public class SecurityConfig {
                                         "/api/users/verify-account/**",
                                         "/api/users/send-otp",
                                         "/api/users/reset-password",
-                                        "/api/users/change-pass",
                                         "/api/users/refresh_token",
                                         "/api/booking/qrCode/validate",
                                         "/uploads/**"

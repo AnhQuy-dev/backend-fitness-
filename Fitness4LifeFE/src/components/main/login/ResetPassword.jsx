@@ -1,8 +1,8 @@
 import { Input, Modal, Button, notification } from "antd";
 import { useState } from "react";
-import { GetOTP, ResetPass } from "../../../services/UsersService";
 import ChangePasswordModal from "../login/ChangePasswordModal"; // Import ChangePasswordModal
 import { useNavigate } from "react-router-dom"; // Import để chuyển hướng
+import { GetOTP, ResetPass } from "../../../serviceToken/authService";
 
 function ResetPassword(props) {
     const { isResetPassword, setResetPassword } = props;

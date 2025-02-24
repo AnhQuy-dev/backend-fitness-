@@ -1,10 +1,10 @@
 
-import { smartAPI } from "../components/helpers/constants";
+import { APIGetWay } from "../components/helpers/constants";
 
 // get all promotion in database còn hoạt động 
 export const getAllPromotions = async (token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -38,7 +38,7 @@ export const getAllPromotions = async (token) => {
 export const sendPromotionOfUser = async (code, token) => {
     console.log("Token gửi đi:", token);
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/send-code-to-all?code=${code}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/send-code-to-all?code=${code}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -69,7 +69,7 @@ export const sendPromotionOfUser = async (code, token) => {
 // send mail cho 1 user được chỉ định bằng email
 export const sendPromotionOneUser = async (code, email, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/send-code-to-user?code=${code}&email=${email}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/send-code-to-user?code=${code}&email=${email}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -102,7 +102,7 @@ export const createPromotions = async (newPromotion, token) => {
     console.log("token : ", token);
 
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/create`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/create`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -131,7 +131,7 @@ export const createPromotions = async (newPromotion, token) => {
 // chủ động change status promotion
 export const changestatus = async (id, isActive, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/changePublished/${id}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/changePublished/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -155,7 +155,7 @@ export const changestatus = async (id, isActive, token) => {
 // chủ động xóa promotion
 export const DeletePromotions = async (id, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/${id}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/${id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -176,7 +176,7 @@ export const DeletePromotions = async (id, token) => {
 // show các mã được tạo ra để dùng point đổi
 export const getAllPromotionsInJson = async (token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/json/all`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/json/all`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -202,7 +202,7 @@ export const getAllPromotionsInJson = async (token) => {
 // create promotion in json
 export const savePromotionInJson = async (newData, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotions/saveJson`, {
+        const response = await fetch(`${APIGetWay}/deal/promotions/saveJson`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -232,7 +232,7 @@ export const savePromotionInJson = async (newData, token) => {
 
 export const getPromotionUser = async (userId, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotionOfUser/getPromotionUser/${userId}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotionOfUser/getPromotionUser/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -258,7 +258,7 @@ export const getPromotionUser = async (userId, token) => {
 
 export const usedPointChangCode = async (userId, point, promotionId, token) => {
     try {
-        const response = await fetch(`${smartAPI}/deal/promotionOfUser/usedPointChangCode/${userId}?point=${point}&promotionId=${promotionId}`, {
+        const response = await fetch(`${APIGetWay}/deal/promotionOfUser/usedPointChangCode/${userId}?point=${point}&promotionId=${promotionId}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

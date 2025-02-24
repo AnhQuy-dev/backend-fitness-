@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { List, Typography, Spin, Button } from "antd";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
-import { GetAllQuestion } from "../../../services/forumService";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
 
 const { Title, Text } = Typography;
 
@@ -11,13 +12,14 @@ const WhatsNew = () => {
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false); // Trạng thái hiển thị tất cả bài viết
     const navigate = useNavigate();
+    const tokenData = getTokenData();//tokenData.access_token
 
     useEffect(() => {
         const fetchAllArticles = async () => {
             try {
-                const response = await GetAllQuestion();
+                const response = await GetAllQuestion(tokenData.access_token);
                 if (response.status === 200) {
-                    const allArticles = response.data.data;
+                    const allArticles = response.data;
 
                     const approvedQuestions = allArticles.filter(
                         (q) => q.status === "APPROVED"

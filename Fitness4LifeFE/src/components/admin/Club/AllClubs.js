@@ -8,7 +8,7 @@ import '../../../assets/css/club.css';
 import moment from 'moment';
 
 function AllClubs(props) {
-    const { dataClubs, loadClubs, setFilteredData, filteredData, setIsModelOpen,token } = props;
+    const { dataClubs, loadClubs, setFilteredData, filteredData, setIsModelOpen, token } = props;
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
     const [dataUpdate, setDataUpdate] = useState(null);
 
@@ -120,7 +120,7 @@ function AllClubs(props) {
     ];
 
     const handleSearch = (value) => {
-        const filtered =dataClubs.filter((item) =>
+        const filtered = dataClubs.filter((item) =>
             item.name.toLowerCase().includes(value.toLowerCase())
         );
         setFilteredData(filtered);
@@ -130,7 +130,7 @@ function AllClubs(props) {
         try {
             const res = await deleteClubApi(id, token);
             console.log("Delete response:", res); // Thêm log để debug
-    
+
             // Kiểm tra response có tồn tại
             if (res && res.data) {
                 notification.success({
@@ -190,7 +190,7 @@ function AllClubs(props) {
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
                 loadClubs={loadClubs}
-                token={token} 
+                token={token}
             />
 
             <ViewClubDetail
@@ -198,7 +198,7 @@ function AllClubs(props) {
                 setDataDetail={setDataDetail}
                 isDataDetailOpen={isDataDetailOpen}
                 setIsDataDetailOpen={setIsDataDetailOpen}
-                token={token} 
+                token={token}
             />
         </>
     );

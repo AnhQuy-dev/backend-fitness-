@@ -1,128 +1,43 @@
-import { Input, notification, Modal, Select, Space, Switch } from "antd";
-import { useEffect, useState } from "react";
-import { updateUserAPI } from "../../../services/UsersService";
+import { Form, Input, notification, Modal, Select, Switch, Row, Col } from "antd";
+import { useEffect } from "react";
+import { updateUserAPI } from "../../../serviceToken/authService";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
 
-const UpdateUser = (props) => {
-    const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate, loadUsers } = props;
-    const [fullName, setFullName] = useState("");
-    const [role, setRole] = useState("");
-    const [gender, setGender] = useState("");
-    const [status, setStatus] = useState(false);
-    const [phone, setPhone] = useState("");
-    const [hobbies, setHobbies] = useState("");
-    const [address, setAddress] = useState("");
-    const [age, setAge] = useState("");
-    const [maritalStatus, setMaritalStatus] = useState("");
-    const [description, setDescription] = useState("");
-    const [file, setFile] = useState(null);
-
-    const [error, setErrors] = useState({});
-
-    const validateField = (field, value) => {
-        const newErrors = { ...error };
-        switch (field) {
-            case "fullName":
-                newErrors.fullName = value.trim() ? "" : "Full name is required.";
-                break;
-            case "phone":
-                newErrors.phone = value.trim() ? "" : "Phone number is required.";
-                break;
-            case "age":
-                newErrors.age = value && Number(value) > 0 ? "" : "Valid age is required.";
-                break;
-            case "file":
-                if (value && !/\.(jpg|jpeg|png)$/i.test(value.name)) {
-                    newErrors.file = "File must be a .jpg, .jpeg, or .png image.";
-                } else {
-                    newErrors.file = "";
-                }
-                break;
-            default:
-                break;
-        }
-        setErrors(newErrors);
-    };
-
-    const validateAllFields = () => {
-        const newErrors = {
-            fullName: fullName.trim() ? "" : "Full name is required.",
-            phone: phone.trim() ? "" : "Phone number is required.",
-            age: age && Number(age) > 0 ? "" : "Valid age is required.",
-            role: role ? "" : "Role is required.",
-            gender: gender ? "" : "Gender is required.",
-            maritalStatus: maritalStatus ? "" : "Marital status is required.",
-        };
-
-        if (file && !/\.(jpg|jpeg|png)$/i.test(file.name)) {
-            newErrors.file = "File must be a .jpg, .jpeg, or .png image.";
-        }
-
-        setErrors(newErrors);
-        return Object.values(newErrors).some((err) => err);
-    };
-
-    const handleChange = (field, value) => {
-        const setters = {
-            fullName: setFullName,
-            role: setRole,
-            gender: setGender,
-            status: setStatus,
-            phone: setPhone,
-            hobbies: setHobbies,
-            address: setAddress,
-            age: setAge,
-            maritalStatus: setMaritalStatus,
-            description: setDescription,
-            file: setFile,
-        };
-
-        setters[field]?.(value);
-        validateField(field, value);
-    };
+const UpdateUser = ({ isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate, loadUsers }) => {
+    const [form] = Form.useForm();
+    const tokenData = getTokenData();
 
     useEffect(() => {
         if (dataUpdate) {
-            setFullName(dataUpdate.fullName || "");
-            setRole(dataUpdate.role || "");
-            setGender(dataUpdate.gender || "");
-            setStatus(dataUpdate.active || false);
-            setPhone(dataUpdate.phone || "");
-
-            const profile = dataUpdate.profileDTO || {};
-            setHobbies(profile.hobbies || "");
-            setAddress(profile.address || "");
-            setAge(profile.age || "");
-            setMaritalStatus(profile.maritalStatus || "");
-            setDescription(profile.description || "");
+            form.setFieldsValue({
+                fullName: dataUpdate.fullName || "",
+                role: dataUpdate.role || "",
+                gender: dataUpdate.gender || "",
+                status: dataUpdate.active ?? false,
+                phone: dataUpdate.phone || "",
+                hobbies: dataUpdate.profileDTO?.hobbies || "",
+                address: dataUpdate.profileDTO?.address || "",
+                age: dataUpdate.profileDTO?.age || "",
+                maritalStatus: dataUpdate.profileDTO?.maritalStatus || "",
+                description: dataUpdate.profileDTO?.description || "",
+            });
+        } else {
+            form.resetFields();
         }
-    }, [dataUpdate]);
+    }, [dataUpdate, form]);
 
     const handleSubmitBtn = async () => {
-        const hasErrors = validateAllFields();
-        if (hasErrors) {
-            notification.error({
-                message: "Validation Error",
-                description: "Please fix the errors in the form before submitting.",
-            });
-            return;
-        }
-
         try {
-            const res = await updateUserAPI(
-                dataUpdate.id,
-                fullName,
-                role,
-                gender,
-                status,
-                phone,
-                hobbies,
-                address,
-                age,
-                description,
-                maritalStatus,
-                file
-            );
+            const values = await form.validateFields();
+            const formData = new FormData();
+            Object.keys(values).forEach((key) => formData.append(key, values[key]));
 
+            const fileInput = document.getElementById("fileInput");
+            if (fileInput?.files.length > 0) {
+                formData.append("file", fileInput.files[0]);
+            }
+
+            const response = await updateUserAPI(dataUpdate.id, formData, tokenData.access_token);
             notification.success({
                 message: "Update User",
                 description: "User updated successfully.",
@@ -130,7 +45,6 @@ const UpdateUser = (props) => {
             resetAndCloseModal();
             await loadUsers();
         } catch (error) {
-            console.error("Error:", error.response || error.message);
             notification.error({
                 message: "Error Updating User",
                 description: error.response?.data?.message || "An unexpected error occurred.",
@@ -140,152 +54,85 @@ const UpdateUser = (props) => {
 
     const resetAndCloseModal = () => {
         setIsModalUpdateOpen(false);
-        setFullName("");
-        setRole("");
-        setGender("");
-        setStatus(false);
-        setPhone("");
-        setHobbies("");
-        setAddress("");
-        setAge("");
-        setMaritalStatus("");
-        setDescription("");
-        setFile(null);
+        form.resetFields();
         setDataUpdate(null);
     };
 
     return (
         <Modal
-            title={
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "10px" }}>
-                    <span style={{ fontWeight: "bold", fontSize: "16px" }}>Edit User</span>
-                </div>
-            }
+            title="Edit User"
             open={isModalUpdateOpen}
             onOk={handleSubmitBtn}
             onCancel={resetAndCloseModal}
             okText="Update"
             cancelText="Cancel"
             maskClosable={false}
+            width={700} // Tăng chiều rộng modal
         >
-            <div style={{ display: "flex", gap: "15px", flexDirection: "column" }}>
-                <Space>
-                    <span>Account Status:</span>
-                    <Switch
-                        checked={status}
-                        onChange={(checked) => handleChange("status", checked)}
-                        checkedChildren="Unlock"
-                        unCheckedChildren="Lock"
-                    />
-                </Space>
-                <div>
-                    <span htmlFor="fullName">Full Name:</span>
-                    <Input
-                        id="fullName"
-                        value={fullName}
-                        placeholder="Full Name"
-                        onChange={(e) => handleChange("fullName", e.target.value)}
-                    />
-                </div>
-                <div>
+            <Form form={form} layout="vertical">
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item label="Account Status" name="status" valuePropName="checked">
+                            <Switch checkedChildren="Unlock" unCheckedChildren="Lock" />
+                        </Form.Item>
 
-                    <span htmlFor="phone">Phone:</span>
-                    <Input
-                        id="phone"
-                        value={phone}
-                        placeholder="Phone"
-                        onChange={(e) => handleChange("phone", e.target.value)}
-                    />
-                </div>
-                <div>
-                    <span htmlFor="hobbies">Hobbies:</span>
-                    <Input
-                        id="hobbies"
-                        value={hobbies}
-                        placeholder="Hobbies"
-                        onChange={(e) => handleChange("hobbies", e.target.value)}
-                    />
-                </div>
-                <div>
-                    <span htmlFor="address">Address:</span>
-                    <Input
-                        id="address"
-                        value={address}
-                        placeholder="Address"
-                        onChange={(e) => handleChange("address", e.target.value)}
-                    />
-                </div>
-                <div>
-                    <span htmlFor="age">Age:</span>
-                    <Input
-                        id="age"
-                        value={age}
-                        type="number"
-                        placeholder="Age"
-                        onChange={(e) => handleChange("age", e.target.value)}
-                    />
-                </div>
-                <div>
-                    <span htmlFor="description">Description:</span>
-                    <Input
-                        id="description"
-                        value={description}
-                        placeholder="Description"
-                        onChange={(e) => handleChange("description", e.target.value)}
-                    />
-                </div>
-                <div style={{ display: "flex", gap: "15px" }}>
-                    <div style={{ flex: 1 }}>
-                        <span htmlFor="maritalStatus">Marital:</span>
-                        <Select
-                            id="maritalStatus"
-                            value={maritalStatus}
-                            placeholder="Marital Status"
-                            onChange={(value) => handleChange("maritalStatus", value)}
-                        >
-                            <Select.Option value="SINGLE">Single</Select.Option>
-                            <Select.Option value="MARRIED">Married</Select.Option>
-                            <Select.Option value="FA">Forever Alone</Select.Option>
-                        </Select>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <span htmlFor="role">Role: </span>
-                        <Select
-                            id="role"
-                            value={role}
-                            placeholder="Role"
-                            onChange={(value) => handleChange("role", value)}
-                        >
-                            <Select.Option value="ADMIN">Admin</Select.Option>
-                            <Select.Option value="USER">User</Select.Option>
-                            <Select.Option value="MANAGER">Manager</Select.Option>
-                            <Select.Option value="TRAINER">Trainer</Select.Option>
-                        </Select>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <span htmlFor="gender">Gender: </span>
-                        <Select
-                            id="gender"
-                            value={gender}
-                            placeholder="Gender"
-                            onChange={(value) => handleChange("gender", value)}
-                        >
-                            <Select.Option value="MALE">Male</Select.Option>
-                            <Select.Option value="FEMALE">Female</Select.Option>
-                            <Select.Option value="OTHER">Other</Select.Option>
-                        </Select>
-                    </div>
-                </div>
-                <div>
-                    <span htmlFor="file">Profile Picture:</span>
-                    <Input
-                        id="file"
-                        type="file"
-                        onChange={(e) => handleChange("file", e.target.files[0])}
-                    />
-                </div>
-                {error.file && <span style={{ color: "red" }}>{error.file}</span>}
-            </div>
+                        <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: "Full name is required." }]}>
+                            <Input placeholder="Full Name" />
+                        </Form.Item>
+
+                        <Form.Item label="Phone" name="phone" rules={[{ required: true, message: "Phone number is required." }]}>
+                            <Input placeholder="Phone" />
+                        </Form.Item>
+
+                        <Form.Item label="Hobbies" name="hobbies">
+                            <Input placeholder="Hobbies" />
+                        </Form.Item>
+
+                        <Form.Item label="Age" name="age" rules={[{ required: true, message: "Valid age is required." }]}>
+                            <Input type="number" placeholder="Age" />
+                        </Form.Item>
+
+                        <Form.Item label="Marital Status" name="maritalStatus" rules={[{ required: true, message: "Marital status is required." }]}>
+                            <Select placeholder="Marital Status">
+                                <Select.Option value="SINGLE">Single</Select.Option>
+                                <Select.Option value="MARRIED">Married</Select.Option>
+                                <Select.Option value="FA">Forever Alone</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+
+                    <Col span={12}>
+                        <Form.Item label="Role" name="role" rules={[{ required: true, message: "Role is required." }]}>
+                            <Select placeholder="Role">
+                                <Select.Option value="ADMIN">Admin</Select.Option>
+                                <Select.Option value="USER">User</Select.Option>
+                                <Select.Option value="MANAGER">Manager</Select.Option>
+                                <Select.Option value="TRAINER">Trainer</Select.Option>
+                            </Select>
+                        </Form.Item>
+
+                        <Form.Item label="Gender" name="gender" rules={[{ required: true, message: "Gender is required." }]}>
+                            <Select placeholder="Gender">
+                                <Select.Option value="MALE">Male</Select.Option>
+                                <Select.Option value="FEMALE">Female</Select.Option>
+                                <Select.Option value="OTHER">Other</Select.Option>
+                            </Select>
+                        </Form.Item>
+
+                        <Form.Item label="Address" name="address">
+                            <Input placeholder="Address" />
+                        </Form.Item>
+
+                        <Form.Item label="Description" name="description">
+                            <Input placeholder="Description" />
+                        </Form.Item>
+
+                        <Form.Item label="Profile Picture" name="file" valuePropName="file">
+                            <Input id="fileInput" type="file" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
         </Modal>
     );
 };

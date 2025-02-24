@@ -1,18 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Typography, Spin, message, Button } from "antd";
 import moment from "moment";
-import { getQuestionById, incrementViewCount, voteQuestion } from "../../../services/forumService";
-import { DataContext } from "../../helpers/DataContext";
+import { voteQuestion } from "../../../services/forumService";
 import CreateComment from "./CreateComment";
-
+import { getQuestionById, incrementViewCount } from "../../../serviceToken/ForumService";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
 const { Title, Paragraph, Text } = Typography;
 
 const DetailPage = () => {
     const { id } = useParams();
-    const { user } = useContext(DataContext); // Lấy thông tin user từ context
     const [question, setQuestion] = useState(null);
     const [loading, setLoading] = useState(false);
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
+    console.log("decotoken: ", decotoken);
+
 
     // Trạng thái lưu lượt vote của từng user
     const [userVoteState, setUserVoteState] = useState({
@@ -23,32 +26,24 @@ const DetailPage = () => {
     const fetchQuestionDetails = async () => {
         try {
             setLoading(true);
-            const response = await getQuestionById(id); // Gọi API theo ID
+            const response = await getQuestionById(id, tokenData.access_token); // Gọi API theo ID
 
-            if (response && response.data.data) {
-
-                // Gọi API tăng view count
-                if (user && user.id) {
-                    // console.log("User ID:", user.id);
-                    // console.log("question ID:", id);
-                    // console.log("Calling incrementViewCount API...");
-                    await incrementViewCount(id, user.id);
+            if (response && response.data) {
+                if (decotoken && decotoken.id) {
+                    await incrementViewCount(id, decotoken.id, tokenData.access_token);
                 } else {
                     console.log("User not found or not logged in!");
                 }
-
-
-                setQuestion(response.data.data); // Đặt dữ liệu câu hỏi từ API
+                setQuestion(response.data); // Đặt dữ liệu câu hỏi từ API
 
                 // Lấy thông tin trạng thái vote hiện tại của user (nếu có)
-                const userVote = response.data.data.votes.find(v => v.userId === user.id);
+                const userVote = response.data.votes.find(v => v.userId === decotoken.id);
                 if (userVote) {
                     setUserVoteState({
                         hasLiked: userVote.voteType === "UPVOTE",
                         hasDisliked: userVote.voteType === "DOWNVOTE",
                     });
                 }
-
             } else {
                 message.error("Không tìm thấy bài viết!");
             }
@@ -60,7 +55,7 @@ const DetailPage = () => {
     };
 
     const handleVote = async (voteType) => {
-        if (!user || !user.id) {
+        if (!decotoken || !decotoken.id) {
             message.error("Bạn cần đăng nhập để thực hiện chức năng này!");
             return;
         }
@@ -98,7 +93,7 @@ const DetailPage = () => {
             }
 
             // Gửi yêu cầu vote đến API
-            const response = await voteQuestion(id, voteType, user.id);
+            const response = await voteQuestion(id, voteType, decotoken.id);
 
             if (response && response.status === 200) {
                 setQuestion(updatedQuestion);

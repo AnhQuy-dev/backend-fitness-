@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Button, Input, Form, message, Modal } from "antd";
-import { GetCommentByQuestionId, createComment, deleteComment, updateComment } from "../../../services/forumService";
-import { DataContext } from "../../helpers/DataContext";
+import { createComment, deleteComment, updateComment } from "../../../services/forumService";
 import moment from "moment";
+import { getDecodedToken, getTokenData } from "../../../serviceToken/tokenUtils";
+import { GetCommentByQuestionId } from "../../../serviceToken/ForumService";
 
 const { Title, Text, Paragraph } = Typography;
 
 const CreateComment = ({ questionId }) => {
-    const { user } = useContext(DataContext);
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [activeReplyForm, setActiveReplyForm] = useState(null);
@@ -15,6 +15,8 @@ const CreateComment = ({ questionId }) => {
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingContent, setEditingContent] = useState("");
     const [activeMenu, setActiveMenu] = useState(null); // Lưu trạng thái nút 3 chấm
+    const tokenData = getTokenData();
+    const decotoken = getDecodedToken();
 
     const toggleMenu = (commentId) => {
         setActiveMenu(activeMenu === commentId ? null : commentId); // Đổi trạng thái mở/tắt menu
@@ -25,10 +27,10 @@ const CreateComment = ({ questionId }) => {
     const fetchComments = async () => {
         setLoading(true);
         try {
-            const response = await GetCommentByQuestionId(questionId);
-            if (response && response.data) {
+            const response = await GetCommentByQuestionId(questionId, tokenData.access_token);
+            if (response && response) {
                 // console.log("Fetched comments:", response.data); // Kiểm tra dữ liệu trả về
-                const sortedComments = response.data.sort((a, b) => {
+                const sortedComments = response.sort((a, b) => {
                     // Chuyển `createdAt` từ chuỗi ISO-8601 thành timestamp để so sánh
                     const dateA = new Date(a.createdAt).getTime();
                     const dateB = new Date(b.createdAt).getTime();
@@ -51,8 +53,8 @@ const CreateComment = ({ questionId }) => {
     // Create new comment
     const handleCreateComment = async (values) => {
         const commentData = {
-            userId: user.id,
-            userName: user.fullName,
+            userId: decotoken.id,
+            userName: decotoken.fullName,
             questionId,
             parentCommentId: values.parentCommentId || null,
             content: values.content,
@@ -106,7 +108,7 @@ const CreateComment = ({ questionId }) => {
 
     const handleEditComment = async (commentId) => {
         const comment = comments.find((c) => c.id === commentId); // Lấy comment cần chỉnh sửa
-        if (comment.userId !== user.id || comment.userName !== user.fullName) {
+        if (comment.userId !== decotoken.id || comment.userName !== decotoken.fullName) {
             message.error("Bạn không có quyền chỉnh sửa bình luận này!");
             return;
         }
@@ -147,7 +149,7 @@ const CreateComment = ({ questionId }) => {
 
     const handleDeleteComment = async (idComment) => {
         const comment = comments.find((c) => c.id === idComment); // Lấy comment cần xóa
-        if (comment.userId !== user.id || comment.userName !== user.fullName) {
+        if (comment.userId !== decotoken.id || comment.userName !== decotoken.fullName) {
             message.error("Bạn không có quyền xóa bình luận này!");
             return;
         }
@@ -239,7 +241,7 @@ const CreateComment = ({ questionId }) => {
                             <Button type="link" size="small" style={{ padding: 0 }}>like</Button>
                             <Button type="link" size="small" style={{ padding: 0 }}>dislike</Button>
                             <Button type="link" size="small" style={{ padding: 0 }} onClick={() => setActiveReplyForm(activeReplyForm === comment.id ? null : comment.id)}>reply</Button>
-                            {comment.userId === user.id && comment.userName === user.fullName && (
+                            {comment.userId === decotoken.id && comment.userName === decotoken.fullName && (
                                 <>
                                     <Button
                                         type="link"

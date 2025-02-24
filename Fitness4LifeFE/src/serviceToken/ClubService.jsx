@@ -1,9 +1,9 @@
-import { dashboardAPI } from "../components/helpers/constants";
+import { APIGetWay } from "../components/helpers/constants";
 
 
 export const fetchAllClubs = async (token) => {
     try {
-        const response = await fetch(`${dashboardAPI}/dashboard/clubs`, {
+        const response = await fetch(`${APIGetWay}/dashboard/clubs`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -27,5 +27,60 @@ export const fetchAllClubs = async (token) => {
         } else {
             return error.message || 'An unexpected error occurred';
         }
+    }
+};
+
+export const CreateClub = async (newData, token) => {
+    try {
+        const response = await fetch(`${APIGetWay}/dashboard/club/add`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify(newData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Lỗi ${response.status}: ${errorText}`);
+        }
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            return await response.text();
+        }
+    } catch (error) {
+        console.error("Lỗi khi tạo club:", error.message);
+        return `Lỗi: ${error.message}`;
+    }
+};
+
+export const AddMoreImageClub = async (formData, token) => {
+    try {
+        const response = await fetch(`${APIGetWay}/dashboard/clubImage/add`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            credentials: "include",
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Lỗi ${response.status}: ${errorText}`);
+        }
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            return await response.text();
+        }
+    } catch (error) {
+        console.error("Lỗi khi add ImageClub:", error.message);
+        return `Lỗi: ${error.message}`;
     }
 };

@@ -21,18 +21,6 @@ const createAuthConfig = () => {
     };
 };
 
-const createClubApi = async (name, address, contactPhone, description, openHour, closeHour) => {
-    const URL_BACKEND = `${URL_CLUB}/club/add`;
-    const data = {
-        name,
-        address,
-        contactPhone,
-        description,
-        openHour,
-        closeHour
-    };
-    return axios.post(URL_BACKEND, data, createAuthConfig());
-};
 
 const updateClubApi = async (id, name, address, contactPhone, description, openHour, closeHour) => {
     const URL_BACKEND = `${URL_CLUB}/club/update/${id}`;
@@ -47,47 +35,12 @@ const updateClubApi = async (id, name, address, contactPhone, description, openH
     return axios.put(URL_BACKEND, data, createAuthConfig());
 };
 
-// const fetchAllClubs = async () => {
-//     try {
-//         const token = getToken();
-//         const response = await fetch(`${URL_CLUB}/clubs`, {
-//             headers: {
-//                 'Authorization': `Bearer ${token}`,
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-
-//         if (!response.ok) {
-//             const errorData = await response.json();
-//             throw new Error(errorData.message || 'Failed to fetch clubs');
-//         }
-
-//         const data = await response.json();
-//         console.log("response data:", data);
-//         return data;
-//     } catch (error) {
-//         console.error('Error fetching clubs:', error);
-//         throw error;
-//     }
-// };
-
 const deleteClubApi = async (id) => {
     const URL_BACKEND = `${URL_CLUB}/club/delete/${id}`;
     return axios.delete(URL_BACKEND, createAuthConfig());
 };
 
-const addClubImageApi = async (formData) => {
-    const token = getToken();
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-        }
-    };
 
-    const response = await axios.post(`${URL_CLUB}/clubImage/add`, formData, config);
-    return response.data;
-};
 
 const fetchClubById = async (id) => {
     const URL_BACKEND = `${URL_CLUB}/club/${id}`;
@@ -130,10 +83,7 @@ api.interceptors.response.use(
 );
 
 export {
-    // fetchAllClubs,
-    createClubApi,
     updateClubApi,
     deleteClubApi,
-    addClubImageApi,
     fetchClubById
 };

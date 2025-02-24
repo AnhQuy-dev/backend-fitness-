@@ -1,8 +1,8 @@
-import { fitnessgoalAPI } from "../components/helpers/constants";
+import { APIGetWay } from "../components/helpers/constants";
 
 export const getUserPoint = async (userId, token) => {
     try {
-        const response = await fetch(`${fitnessgoalAPI}/goal/userPoint/${userId}`, {
+        const response = await fetch(`${APIGetWay}/goal/userPoint/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

@@ -1,6 +1,7 @@
 import { Input, notification, Modal } from "antd";
 import { useEffect, useState } from "react";
-import { addClubImageApi, updateClubApi } from "../../../services/ClubService";
+import { updateClubApi } from "../../../services/ClubService";
+import { AddMoreImageClub } from "../../../serviceToken/ClubService";
 
 const UpdateClub = (props) => {
     const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate, loadClubs } = props;
@@ -127,7 +128,7 @@ const UpdateClub = (props) => {
                 imageFormData.append("clubId", id);
                 imageFormData.append("file", file);
 
-                const imageRes = await addClubImageApi(imageFormData);
+                const imageRes = await AddMoreImageClub(imageFormData);
                 if (imageRes.data) {
                     notification.success({
                         message: "Image Upload",

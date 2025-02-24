@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
-import { fetchAllUsers } from "../../../services/UsersService";
-import AllUsers from "./AllUsers";
 import CreateUser from "./CreateUser";
-import { logDOM } from "@testing-library/react";
 import { getTokenData } from "../../../serviceToken/tokenUtils";
+import { fetchAllUsers } from "../../../serviceToken/authService";
+import AllUsers from "./AllUsers";
 
 function Users() {
     const [dataUsers, setDataUsers] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [isModalOpen, setIsModelOpen] = useState(false);
+    const tokenData = getTokenData();
     const loadUsers = async () => {
         try {
-            const tokenData = getTokenData();
-
-            const res = await fetchAllUsers(tokenData.access_token);
-
-            if (res && Array.isArray(res.data)) {
-                setDataUsers(res.data);
-                setFilteredData(res.data);
-                console.log("Users loaded successfully:", res.data);
+            const response = await fetchAllUsers(tokenData.access_token);
+            if (Array.isArray(response)) {  // Kiểm tra có phải mảng không
+                setDataUsers(response);
+                setFilteredData(response);
             } else {
-                console.error("Invalid data format received:", res);
+                console.error("Invalid data format received:", response);
                 setDataUsers([]);
                 setFilteredData([]);
             }
@@ -35,13 +31,13 @@ function Users() {
         loadUsers();
     }, []);
 
+
     return (
         <div style={{ padding: "20px" }}>
             <CreateUser
                 loadUsers={loadUsers}
                 isModalOpen={isModalOpen}
                 setIsModelOpen={setIsModelOpen}
-            // token={access_token}
             />
 
             <AllUsers
@@ -50,7 +46,6 @@ function Users() {
                 filteredData={filteredData}
                 setFilteredData={setFilteredData}
                 setIsModelOpen={setIsModelOpen}
-            // token={access_token}
             />
         </div>
     )

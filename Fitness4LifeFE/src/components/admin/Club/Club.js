@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import CreateClub from "./CreateClub";
 import AllClubs from "./AllClubs";
 import { getTokenData } from "../../../serviceToken/tokenUtils";
 import { fetchAllClubs } from "../../../serviceToken/ClubService";
+import CreateClubModa from "./CreateClubModa";
 
 function Club() {
     const [dataClubs, setDataClubs] = useState([]);
@@ -13,7 +13,6 @@ function Club() {
         try {
             const tokenData = getTokenData();
             const data = await fetchAllClubs(tokenData.access_token); // Now fetchAllClubs returns parsed data
-            console.log("Response data:", data); // Log to see the structure
 
             if (data && Array.isArray(data.data)) {
                 setDataClubs(data.data);
@@ -37,11 +36,10 @@ function Club() {
 
     return (
         <div style={{ padding: "20px" }}>
-            <CreateClub
+            <CreateClubModa
                 loadClubs={loadClubs}
                 isModalOpen={isModalOpen}
                 setIsModelOpen={setIsModelOpen}
-            // token={access_token}
             />
 
             <AllClubs
@@ -50,7 +48,6 @@ function Club() {
                 filteredData={filteredData}
                 setFilteredData={setFilteredData}
                 setIsModelOpen={setIsModelOpen}
-            // token={access_token}
             />
         </div>
     )

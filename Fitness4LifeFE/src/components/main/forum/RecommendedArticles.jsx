@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { List, Typography, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import { GetAllQuestion } from "../../../services/forumService";
 import moment from "moment";
+import { getTokenData } from "../../../serviceToken/tokenUtils";
+import { GetAllQuestion } from "../../../serviceToken/ForumService";
 
 const { Title, Text } = Typography;
 
@@ -10,6 +11,7 @@ const RecommendedArticles = () => {
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const tokenData = getTokenData();//tokenData.access_token
 
     // Hàm giới hạn ký tự hiển thị
     const truncateText = (text, maxLength) => {
@@ -20,9 +22,9 @@ const RecommendedArticles = () => {
     useEffect(() => {
         const fetchRecommendedArticles = async () => {
             try {
-                const response = await GetAllQuestion();
+                const response = await GetAllQuestion(tokenData.access_token);
                 if (response.status === 200) {
-                    const allArticles = response.data.data;
+                    const allArticles = response.data;
 
                     // Sắp xếp theo viewCount và upvote
                     const sortedArticles = allArticles
